@@ -1,0 +1,21 @@
+{
+    "navbar": {
+      "home": "Home",
+      "signup": "Signup",
+      "login": "Login"
+    },
+    "welcome": "Welcome to TechSquad!",
+    "login": {
+      "username": "Username",
+      "password": "Password",
+      "submit": "Login"
+    },
+    "signup": {
+      "header": "Create an Account",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Signup"
+    }
+  }
+  

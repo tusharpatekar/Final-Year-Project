@@ -9,6 +9,7 @@ import tensorflow
 import numpy as np
 import pickle
 import sqlite3
+import support
 
 app = Flask(__name__)
 CORS(app)
@@ -143,16 +144,6 @@ def plantresult(res):
             corrected_result = corrected_result+i
     return render_template('plantdiseaseresult.html', corrected_result=corrected_result)
 
-VALID_FILENAMES = [
-    'AppleCedarRust1.JPG', 'AppleCedarRust2.JPG', 'AppleCedarRust3.JPG', 'AppleCedarRust4.JPG',
-    'AppleScab1.JPG', 'AppleScab2.JPG', 'AppleScab3.JPG', 
-    'CornCommonRust1.JPG', 'CornCommonRust2.JPG', 'CornCommonRust3.JPG',
-    'PotatoEarlyBlight1.JPG', 'PotatoEarlyBlight2.JPG', 'PotatoEarlyBlight3.JPG', 'PotatoEarlyBlight4.JPG', 'PotatoEarlyBlight5.JPG',
-    'PotatoHealthy1.JPG', 'PotatoHealthy2.JPG',
-    'TomatoEarlyBlight1.JPG', 'TomatoEarlyBlight2.JPG', 'TomatoEarlyBlight3.JPG', 'TomatoEarlyBlight4.JPG', 'TomatoEarlyBlight5.JPG', 'TomatoEarlyBlight6.JPG',
-    'TomatoHealthy1.JPG', 'TomatoHealthy2.JPG', 'TomatoHealthy3.JPG', 'TomatoHealthy4.JPG',
-    'TomatoYellowCurlVirus1.JPG', 'TomatoYellowCurlVirus2.JPG', 'TomatoYellowCurlVirus3.JPG'
-]
 
 @app.route('/plantdisease', methods=['POST'])
 def plantdisease():
@@ -166,14 +157,11 @@ def plantdisease():
     # Validate file type
     if not allowed_file(file.filename):
         return {"error": "Invalid file type"}, 400
-
-    # Validate the file against the predefined list of valid filenames
-    if file.filename not in VALID_FILENAMES:
-        return {"error": "Invalid image file uploaded!"}, 400
-
     # If validation passes, save the file and process it
     filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+
 
     imagefile = tensorflow.keras.utils.load_img(
         os.path.join(app.config['UPLOAD_FOLDER'], filename),
@@ -187,7 +175,7 @@ def plantdisease():
     probability_model = tensorflow.keras.Sequential([MODEL, tensorflow.keras.layers.Softmax()])
     predict_probs = probability_model.predict(input_arr)
     p = np.argmax(predict_probs[0])
-    res = CLASSES[p]
+    res = support.analyze_image(filepath)
 
     return {"result": res}
 

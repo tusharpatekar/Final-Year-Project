@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { translateText } from './translationService'; // Import the translation service
 
-const PlantDisease = ({ setResult }) => {
+const PlantDisease = ({ setResult, language }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleFileChange = (e) => {
@@ -17,7 +19,7 @@ const PlantDisease = ({ setResult }) => {
       return;
     }
 
-    setLoading(true); // Start loading indicator
+    setLoading(true);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -29,28 +31,28 @@ const PlantDisease = ({ setResult }) => {
       });
 
       if (!response.ok) {
-        // Await the response body as JSON and extract the error message
         const errorData = await response.json();
         throw new Error(errorData.error || 'Something went wrong!');
       }
 
       const data = await response.json();
-      setResult(data.result);
-      navigate('/result'); // Navigate to the result page
+
+      // Translate the result text based on the selected language
+      const translatedResult = await translateText(data.result, "fr");
+      setResult(translatedResult); // Update result with translated text
+      navigate('/result'); // Navigate to result page
     } catch (error) {
       console.error('Error:', error);
-      alert(error);
+      setError(error.message); // Set error message for display
     } finally {
-      setLoading(false); // Stop loading indicator
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex justify-center items-center h-screen ">
       <div className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Plant Disease Detection
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">Plant Disease Detection</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
@@ -63,15 +65,17 @@ const PlantDisease = ({ setResult }) => {
           {loading ? (
             <div className="text-center text-green-500">
               <p>Uploading... Please wait.</p>
-              {/* Optional: You could add a loading spinner here */}
             </div>
           ) : (
             <button
               type="submit"
-              className="w-full  text-white py-2 rounded bg-green-500"
+              className="w-full text-white py-2 rounded bg-green-500"
             >
               Upload
             </button>
+          )}
+          {error && (
+            <div className="text-red-500 text-center mt-4">{error}</div>
           )}
         </form>
       </div>
