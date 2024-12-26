@@ -1,0 +1,32 @@
+name: Deploy React to Azure
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies and build
+      run: |
+        cd crop-disease-detection-frontend
+        npm install
+        npm run build
+
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: plant-disease-frontend
+        slot-name: production
+        package: ./crop-disease-detection-frontend/build
