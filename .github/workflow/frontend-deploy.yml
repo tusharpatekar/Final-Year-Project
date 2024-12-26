@@ -1,32 +1,32 @@
-name: Deploy React to Azure
+name: Build and Deploy Frontend
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # or your deployment branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Set up Node.js
+    - name: Install Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
-
-    - name: Install dependencies and build
+        node-version: '16'  # Use a compatible Node.js version
+    
+    - name: Install Dependencies and Build
       run: |
-        cd crop-disease-detection-frontend
+        cd crop-disease-detection-frontend  # Point to the correct folder
         npm install
-        npm run build
-
-    - name: Deploy to Azure
+        npm run build --if-present
+    
+    - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: plant-disease-frontend
-        slot-name: production
-        package: ./crop-disease-detection-frontend/build
+        app-name: 'plant-disease-frontend'  # Your Azure frontend app name
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: 'crop-disease-detection-frontend/build'  # Deploy the build folder
