@@ -18,25 +18,30 @@ jobs:
       with:
         node-version: '20'  # Match your environment
 
-    - name: npm install, build, and test
+    - name: Install Dependencies
       run: |
-          cd crop-disease-detection-frontend
-          
-          npm install --legacy-peer-deps
-          CI=false npm run build
-          npm run test --if-present
-          
+        cd crop-disease-detection-frontend
+        npm install --legacy-peer-deps  # Install dependencies, avoiding peer dependency issues
 
+    - name: Build the Project
+      run: |
+        cd crop-disease-detection-frontend
+        CI=false npm run build  # Build the React app
+
+    - name: Run Tests (optional)
+      run: |
+        cd crop-disease-detection-frontend
+        npm run test --if-present  # Run tests if they are set up
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v3
       with:
         name: frontend-build
-        path: crop-disease-detection-frontend/build
+        path: crop-disease-detection-frontend/build  # Upload build files as artifact
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'plant-disease-frontend'  # Azure app name
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: 'crop-disease-detection-frontend/build'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}  # Azure publish profile from secrets
+        package: 'crop-disease-detection-frontend/build'  # Path to build folder
