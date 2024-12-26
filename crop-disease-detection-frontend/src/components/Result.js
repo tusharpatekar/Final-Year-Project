@@ -36,8 +36,11 @@ const Result = ({ result }) => {
   const [expanded, setExpanded] = useState(false);
   const [error, setError] = useState(false);
 
-  const API_KEY = 'AIzaSyDqdzKwRVWlVDZ-yxluMqaIst8IKQ1aups';
-  
+  // Azure Translator API details
+  const subscriptionKey = '5q41kpulfjuzg1tYWbGVppnVxaCDIzYRKqGHNqL92X6UimMvkPHxJQQJ99ALACGhslBXJ3w3AAAbACOGrQCS'; // Replace with your Azure Translator API key
+  const region = 'centralindia'; // Replace with your Azure resource region (e.g., 'eastus')
+  const endpoint = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'; // Azure Translator endpoint
+
   useEffect(() => {
     if (language !== 'en') {
       translateText(result, language);
@@ -54,21 +57,29 @@ const Result = ({ result }) => {
   }, [language, result]);
 
   const translateText = async (text, targetLang) => {
-    const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`;
-    
     setLoading(true);
     try {
-      const response = await axios.post(url, {
-        q: text,
-        target: targetLang,
-        format: 'text'
-      });
+      const response = await axios.post(endpoint, 
+        [{
+          Text: text
+        }], 
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Ocp-Apim-Subscription-Key': subscriptionKey,
+            'Ocp-Apim-Subscription-Region': region,
+          },
+          params: {
+            'to': targetLang,
+          }
+        });
 
-      const translatedText = response.data.data.translations[0].translatedText;
+      // Extract translated text
+      const translatedText = response.data[0].translations[0].text;
       setTranslatedResult(translatedText);
     } catch (error) {
       console.error("Translation error:", error);
-      setTranslatedResult(result);
+      setTranslatedResult(result); // Fallback to original result if error occurs
     } finally {
       setLoading(false);
     }

@@ -25,7 +25,7 @@ const App = () => {
         <div className="container mx-auto pt-8 bg-agriculture-background"
         >
           <Routes>
-          {/* <Route path="/home" element={<Home/>} /> */}
+          <Route path="/home" element={<Home/>} />
             <Route path="/" element={<Login/>} />
             <Route path="/signup" element={<Signup />} />
             <Route

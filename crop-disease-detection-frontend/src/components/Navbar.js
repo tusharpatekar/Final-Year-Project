@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
+
+  // Set default language to English on initial load
+  useEffect(() => {
+    i18n.changeLanguage('en');
+  }, [i18n]);
 
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang); // Change app language dynamically
@@ -22,6 +27,7 @@ const Navbar = () => {
         <select
           className="bg-green-700 text-white p-2 rounded"
           onChange={(e) => changeLanguage(e.target.value)}
+          defaultValue="en" // Set the default value to "en" (English)
         >
           <option value="en">English</option>
           <option value="mr">मराठी</option>

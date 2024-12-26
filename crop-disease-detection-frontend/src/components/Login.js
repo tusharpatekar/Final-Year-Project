@@ -1,16 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-
-// To decode the Google ID token
+import './spinner.css'; // Import spinner CSS
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // To track loading state
+  const [error, setError] = useState(''); // To store error message
   const navigate = useNavigate();
+
+  // Email validation function
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return regex.test(email);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // Clear previous error message
+    setError('');
+
+    // Validate email and password
+    if (!email || !password) {
+      setError('Both email and password are required.');
+      setTimeout(() => setError(''), 3000); // Clear error after 3 seconds
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email.');
+      setTimeout(() => setError(''), 3000); // Clear error after 3 seconds
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password should be at least 6 characters long.');
+      setTimeout(() => setError(''), 3000); // Clear error after 3 seconds
+      return;
+    }
+
+    setIsLoading(true); // Show loading while logging in
 
     try {
       const response = await fetch('http://127.0.0.1:5000/login', {
@@ -29,6 +60,8 @@ const Login = () => {
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred while logging in.');
+    } finally {
+      setIsLoading(false); // Hide loading after login attempt
     }
   };
 
@@ -50,6 +83,7 @@ const Login = () => {
   }, []);
 
   const handleGoogleLogin = (response) => {
+    setIsLoading(true); // Show loading while Google login is being processed
     const userObject = jwtDecode(response.credential);
     console.log('Google User:', userObject);
 
@@ -61,6 +95,7 @@ const Login = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        setIsLoading(false); // Hide loading once response is received
         if (data.status) {
           alert(data.message);
           navigate('/plantdisease');
@@ -68,7 +103,11 @@ const Login = () => {
           alert(data.error);
         }
       })
-      .catch((error) => console.error('Google Login Error:', error));
+      .catch((error) => {
+        setIsLoading(false); // Hide loading if an error occurs
+        console.error('Google Login Error:', error);
+        alert('An error occurred during Google login.');
+      });
   };
 
   return (
@@ -96,14 +135,21 @@ const Login = () => {
               placeholder="Enter your password"
             />
           </div>
+          {error && (
+            <div className="text-red-500 text-center mb-4">{error}</div> // Display error message
+          )}
           <button
             type="submit"
             className="w-full text-white py-2 rounded bg-green-500"
+            disabled={isLoading} // Disable the button while loading
           >
-            Login
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
+        {/* Google Sign-In Button */}
         <div id="google-signin" className="mt-4 flex justify-center"></div>
+
         <p className="text-sm text-center mt-4">
           Don't have an account?{' '}
           <span
@@ -113,6 +159,13 @@ const Login = () => {
             Sign up
           </span>
         </p>
+
+        {/* Loading Spinner for Google Login */}
+        {isLoading && (
+          <div className="flex justify-center items-center mt-4">
+            <div className="spinner"></div> {/* You can add your custom loading spinner */}
+          </div>
+        )}
       </div>
     </div>
   );
