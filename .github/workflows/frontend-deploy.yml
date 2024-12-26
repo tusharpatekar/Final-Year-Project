@@ -3,7 +3,7 @@ name: Build and Deploy Frontend
 on:
   push:
     branches:
-      - main  # or your deployment branch
+      - main  # Change this if needed
 
 jobs:
   build-and-deploy:
@@ -16,17 +16,24 @@ jobs:
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'  # Use a compatible Node.js version
-    
-    - name: Install Dependencies and Build
+        node-version: '16'  # Match your environment
+
+    - name: npm install, build, and test
       run: |
-        cd crop-disease-detection-frontend  # Point to the correct folder
+        cd crop-disease-detection-frontend  # Go to frontend folder
         npm install
         npm run build --if-present
-    
+        npm run test --if-present
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: crop-disease-detection-frontend/build
+
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'plant-disease-frontend'  # Your Azure frontend app name
+        app-name: 'plant-disease-frontend'  # Azure app name
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: 'crop-disease-detection-frontend/build'  # Deploy the build folder
+        package: 'crop-disease-detection-frontend/build'
