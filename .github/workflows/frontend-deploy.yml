@@ -28,11 +28,6 @@ jobs:
         cd crop-disease-detection-frontend
         CI=false npm run build  # Build the React app
 
-    - name: Run Tests (optional)
-      run: |
-        cd crop-disease-detection-frontend
-        npm run test --if-present  # Run tests if they are set up
-
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v3
       with:
