@@ -37,7 +37,7 @@ MODEL_DIR = os.path.join(BASE_DIR, 'model')
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'bucket')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'JPG'}
 
-MODEL = tensorflow.keras.models.load_model(os.path.join(MODEL_DIR, 'efficientnetv2s.h5'))
+MODEL = tensorflow.keras.models.load_model(os.path.join(MODEL_DIR, 'vgg.h5'))
 REC_MODEL = pickle.load(open(os.path.join(MODEL_DIR, 'RF.pkl'), 'rb'))
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -170,12 +170,12 @@ def plantdisease():
     input_arr = tensorflow.keras.preprocessing.image.img_to_array(imagefile)
     input_arr = np.array([input_arr])
 
-    # Make predictions
     predict = MODEL.predict(input_arr)
     probability_model = tensorflow.keras.Sequential([MODEL, tensorflow.keras.layers.Softmax()])
     predict_probs = probability_model.predict(input_arr)
     p = np.argmax(predict_probs[0])
-    res = support.analyze_image(filepath)
+    dis = p
+    res = support.get_more_info(filepath, dis)
 
     return {"result": res}
 

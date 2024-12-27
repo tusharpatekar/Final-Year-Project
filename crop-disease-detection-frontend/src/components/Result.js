@@ -38,55 +38,71 @@ const Result = ({ result }) => {
 
   // Azure Translator API details
   const subscriptionKey = '5q41kpulfjuzg1tYWbGVppnVxaCDIzYRKqGHNqL92X6UimMvkPHxJQQJ99ALACGhslBXJ3w3AAAbACOGrQCS'; // Replace with your Azure Translator API key
-  const region = 'centralindia'; // Replace with your Azure resource region (e.g., 'eastus')
+  const region = 'centralindia';
   const endpoint = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'; // Azure Translator endpoint
 
   useEffect(() => {
-    if (language !== 'en') {
-      translateText(result, language);
-    } else {
-      setTranslatedResult(result);
-    }
+    // Retrieve the language from localStorage
+    const handleLanguageChange = () => {
+      const savedLanguage = localStorage.getItem("language") || "en";
+      setLanguage(savedLanguage);
 
-    // Check for "not a plant" error
-    if (result.toLowerCase().includes('not a plant')) {
+      if (savedLanguage !== "en") {
+        translateText(result, savedLanguage);
+      } else {
+        setTranslatedResult(result);
+      }
+    };
+    window.addEventListener("languageChange", handleLanguageChange);
+    handleLanguageChange();
+
+
+    if (
+      result.toLowerCase().includes('not a plant') ||
+      result.toLowerCase().includes('not plant') ||
+      result.toLowerCase().includes('person') ||
+      result.toLowerCase().includes('object') ||
+      result.toLowerCase().includes('unable to detect plant disease') ||
+      result.toLowerCase().includes('unable to fetch')
+    ) {
       setError(true);
     } else {
       setError(false);
     }
-  }, [language, result]);
+    
+
+  }, [result]);
 
   const translateText = async (text, targetLang) => {
     setLoading(true);
     try {
-      const response = await axios.post(endpoint, 
-        [{
-          Text: text
-        }], 
+      const response = await axios.post(
+        endpoint,
+        [{ Text: text }],
         {
           headers: {
             'Content-Type': 'application/json',
             'Ocp-Apim-Subscription-Key': subscriptionKey,
-            'Ocp-Apim-Subscription-Region': region,
+            'Ocp-Apim-Subscription-Region': region
           },
           params: {
-            'to': targetLang,
+            to: targetLang
           }
-        });
+        }
+      );
 
       // Extract translated text
       const translatedText = response.data[0].translations[0].text;
       setTranslatedResult(translatedText);
     } catch (error) {
-      console.error("Translation error:", error);
-      setTranslatedResult(result); // Fallback to original result if error occurs
+      console.error('Translation error:', error);
+      setTranslatedResult(result);
     } finally {
       setLoading(false);
     }
   };
 
   const toggleExpand = () => setExpanded(!expanded);
-  const handleLanguageChange = (event) => setLanguage(event.target.value);
 
   const { title, backHome, readMore, showLess, loading: loadingText, error: errorText } = translations[language];
   const splitResult = translatedResult.split('\n');
@@ -94,20 +110,10 @@ const Result = ({ result }) => {
   const fullResult = splitResult.join('\n');
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-6">
+    <div className="flex justify-center items-center min-h-screen p-6 ">
       <div className="bg-white p-10 rounded-lg shadow-xl w-full max-w-4xl text-left leading-relaxed">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-green-700">{title}</h2>
-
-          <select
-            value={language}
-            onChange={handleLanguageChange}
-            className="border border-gray-300 rounded p-2"
-          >
-            <option value="en">English</option>
-            <option value="hi">हिंदी</option>
-            <option value="mr">मराठी</option>
-          </select>
         </div>
 
         {loading ? (

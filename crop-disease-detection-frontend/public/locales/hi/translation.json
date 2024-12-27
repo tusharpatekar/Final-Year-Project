@@ -2,7 +2,10 @@
     "navbar": {
       "home": "मुख्य पृष्ठ",
       "signup": "साइन अप",
-      "login": "लॉग इन"
+      "login": "लॉग इन",
+      "about": "हमारे बारे में",
+  "logout": "लॉग आउट",
+  "detect": "रोग खोजें"
     },
     "welcome": "TechSquad में आपका स्वागत है!",
     "login": {

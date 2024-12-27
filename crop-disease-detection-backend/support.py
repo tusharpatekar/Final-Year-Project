@@ -1,7 +1,7 @@
 import base64
 import requests
 
-def analyze_image(filepath):
+def get_more_info(filepath, dis):
     with open(filepath, 'rb') as image_file:
         encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
 

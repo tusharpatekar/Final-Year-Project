@@ -6,6 +6,8 @@ import Signup from './components/Signup';
 import PlantDisease from './components/PlantDisease';
 import Result from './components/Result';
 import Home from './components/Home';
+import ProtectedRoute from './components/ProtectedRoute';
+import AboutUs from './components/AboutUs/AboutUs';
 
 const App = () => {
   const [detectionResult, setDetectionResult] = useState('');
@@ -17,22 +19,35 @@ const App = () => {
         backgroundImage: "url('/agri-bg.jpg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
       }}
     >
       <Router>
         <Navbar />
-        <div className="container mx-auto pt-8 bg-agriculture-background"
-        >
+        <div className="container mx-auto pt-8 bg-agriculture-background">
           <Routes>
-          <Route path="/home" element={<Home/>} />
-            <Route path="/" element={<Login/>} />
+            <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/aboutus" element={<AboutUs />} />
+            
+            {/* Protected Routes */}
             <Route
               path="/plantdisease"
-              element={<PlantDisease setResult={setDetectionResult} />}
+              element={
+                <ProtectedRoute>
+                  <PlantDisease setResult={setDetectionResult} />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/result" element={<Result result={detectionResult} />} />
+            <Route
+              path="/result"
+              element={
+                <ProtectedRoute>
+                  <Result result={detectionResult} />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
       </Router>
